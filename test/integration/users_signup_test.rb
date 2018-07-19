@@ -3,7 +3,7 @@ require 'test_helper'
 class UsersSignupTest < ActionDispatch::IntegrationTest
   test "reject invalid signups" do
     assert_no_difference 'User.count' do 
-      post sign_up_path params: {
+      post signup_path params: {
         user: {
           name: "",
           email: "invalid@bar",
@@ -16,7 +16,7 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
 
   test "accept valid signups" do
     assert_difference 'User.count', 1 do 
-      post sign_up_path params: {
+      post signup_path params: {
         user: {
           name: "foobar",
           email: "foo@bar.com",

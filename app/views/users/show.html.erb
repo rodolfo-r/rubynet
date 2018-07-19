@@ -1,8 +1,5 @@
 <% provide(:title, @user.name) %>
 <div class="row">
-  <% flash.each do |type, msg| %>
-    <%= content_tag(:div, msg, class: "alert alert-#{type}") %>
-  <% end %>
   <aside class="col-md-4">
     <section class="user_info">
       <h1>
