@@ -5,6 +5,12 @@ ruby '2.5.1'
 
 gem 'jquery-rails', '~> 4.3', '>= 4.3.3'
 gem 'rails-ujs', '~> 0.1.0'
+gem 'bootstrap-sass', '3.3.7'
+gem 'bootsnap', '>= 1.1.0', require: false
+gem 'bcrypt',         '3.1.12'
+gem 'faker',          '1.7.3'
+gem 'will_paginate',           '3.1.6'
+gem 'bootstrap-will_paginate', '1.0.0'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.2.0'
@@ -34,12 +40,8 @@ gem 'jbuilder', '~> 2.5'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
-gem 'bootstrap-sass', '3.3.7'
 # Reduces boot times through caching; required in config/boot.rb
-gem 'bootsnap', '>= 1.1.0', require: false
 gem 'rails-controller-testing'
-gem 'rails-ujs', '~> 0.1.0'
-gem 'bcrypt',         '3.1.12'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

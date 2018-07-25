@@ -3,6 +3,7 @@ require 'test_helper'
 class UsersSignupTest < ActionDispatch::IntegrationTest
   def setup
     @user = users(:user)
+    @user2 = users(:user2)
   end
 
   test "reject invalid signups" do
@@ -65,5 +66,65 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
     log_in_as(@user, remember_me: 1)
     log_in_as(@user, remember_me: 0)
     assert_empty cookies['remember_token']
+  end
+
+  test "invalid edit" do
+    log_in_as(@user)
+    get edit_user_path(@user)
+    assert_template 'users/edit'
+    patch user_path(@user), params: {
+      user: { name: "New Name",
+              email: "",
+              password: "",
+              password_confirmation: "" } }
+    assert_template 'users/edit'
+    assert_select '#error_explanation'
+  end
+
+  test "successful edit" do
+    log_in_as(@user)
+    get edit_user_path(@user)
+    assert_template 'users/edit'
+
+    name  = "New Name"
+    email = "new@mail.com"
+    patch user_path(@user), params: {
+      user: { name: name,
+              email: email,
+              password: "",
+              password_confirmation: "" } }
+
+    assert_redirected_to @user
+    @user.reload
+    assert_equal name,  @user.name
+    assert_equal email, @user.email
+    assert_not flash[:success].nil?
+  end
+
+  test "reject foreign user edits" do
+    log_in_as(@user2)
+    get edit_user_path(@user)
+    assert_redirected_to root_url
+    name  = "New Name"
+    email = "new@mail.com"
+    patch user_path(@user), params: {
+      user: { name: name,
+              email: email,
+              password: "",
+              password_confirmation: "" } }
+
+    assert_redirected_to root_url
+    @user.reload
+    assert_not_equal name,  @user.name
+    assert_not_equal email, @user.email
+  end
+
+  test "paginate index" do
+    log_in_as(@user)
+    get users_path
+    assert_template 'users/index'
+    User.paginate(page: 1).each do |user|
+      assert_select 'a[href=?]', user_path(user), text: user.name
+    end
   end
 end
