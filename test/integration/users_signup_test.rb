@@ -19,7 +19,7 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
     assert_select '#error_explanation'
   end
 
-  test "signup with valid credentials" do
+  test "signup with valid credentials followed by account activation" do
     assert_difference 'User.count', 1 do 
       post signup_path params: {
         user: {
@@ -28,11 +28,24 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
           password: "foobar",
           password_confirmation: "foobar" }}
     end
+    assert_equal 1, ActionMailer::Base.deliveries.size
+    user = assigns(:user)
+    assert_not user.activated?
+    # Try to log in before activation.
+    log_in_as(user)
+    assert_not is_logged_in?
+    # Invalid activation token
+    get edit_account_activation_path("invalid token", email: user.email)
+    assert_not is_logged_in?
+    # Valid token, wrong email
+    get edit_account_activation_path(user.activation_token, email: 'wrong')
+    assert_not is_logged_in?
+    # Valid activation token
+    get edit_account_activation_path(user.activation_token, email: user.email)
+    assert user.reload.activated?
     follow_redirect!
-    assert_template 'users/show'
-    assert_not_equal flash.count, 0
-    assert_select "a[href=?]", login_path, count: 0
-    assert_select "a[href=?]", logout_path
+    assert_redirected_to user
+    assert is_logged_in?
   end
 
   test "login with valid credentials followed by logout" do
@@ -119,12 +132,18 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
     assert_not_equal email, @user.email
   end
 
-  test "paginate index" do
+  test "show activated users" do
     log_in_as(@user)
     get users_path
     assert_template 'users/index'
-    User.paginate(page: 1).each do |user|
+    User.where(activated: true).paginate(page: 1).each do |user|
       assert_select 'a[href=?]', user_path(user), text: user.name
     end
+  end
+
+  test "do not show unactivated users" do
+    log_in_as(@user)
+    get users_path
+    assert_select 'a[href=?]', user_path(@user2), count: 0
   end
 end

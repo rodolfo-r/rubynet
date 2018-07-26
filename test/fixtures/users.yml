@@ -2,8 +2,12 @@ user:
   name: foo
   email: foo@foo.com
   password_digest: <%= User.digest('password') %>
+  activated: true
+  activated_at: <%= Time.zone.now %>
 
 user2:
   name: bar
   email: bar@bar.com
   password_digest: <%= User.digest('password') %>
+  activated: true
+  activated_at: <%= Time.zone.now %>

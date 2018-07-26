@@ -3,7 +3,7 @@ class UsersController < ApplicationController
   before_action :correct_user, only: [:edit, :update, :delete]
 
   def index
-    @users = User.paginate(page: params[:page])
+    @users = User.where(activated: true).paginate(page: params[:page])
     User.all
   end
 
@@ -14,16 +14,21 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      log_in @user
-      flash[:success] = "Welcome, #{@user.name}!"
-      redirect_to @user
+      @user.send_activation_email
+      flash[:info] = "Please check your email to activate your account."
+      redirect_to root_url
     else
       render 'new'
     end
   end
 
   def show
-    @user = User.find(params[:id])
+    @user = User.find_by(id: params[:id], activated: true)
+    if @user
+      redirect_to @user
+    else
+      redirect_to root_url
+    end
   end
 
   def edit

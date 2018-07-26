@@ -28,7 +28,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
         password: "password" }}
     assert_redirected_to @user
     follow_redirect!
-    assert_template 'users/show'
     assert_select "a[href=?]", logout_path
   end
 
